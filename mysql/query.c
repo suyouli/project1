@@ -1,0 +1,53 @@
+//查询
+#include <stdio.h>
+#include <mysql/mysql.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+int main()
+{
+	char sql[1024];
+	MYSQL db,*pdb;//MYSQL结构
+	MYSQL_RES *ptr;//
+	MYSQL_ROW result;//char **，行的值
+	int ret;
+	mysql_init(&db);//调用mysql_init()初始化MYSQL结构
+	pdb=mysql_real_connect(&db,"localhost","root","12345","china",0,NULL,0);//mysql_real_connect()与运行在主机上的MYSQL数据库引擎建立连接
+							//MYSQL结构地址|主机名或IP地址|用户名|密码|数据库名称|不是0时用TCP/IP端口号|
+							//返回值：失败NULL，成功:&db
+	if(pdb==NULL)
+	{
+		printf("mysql connect failed\n");
+	}
+	else
+		printf("mysql connect success\n");
+	strcpy(sql,"select *from students");
+	ret=mysql_query(&db,sql);
+	//执行查询sql语句
+	MYSQL_FIELD *field;//
+	int row,column;//定义int型的行和列
+	int i,j;
+	ptr=mysql_store_result(&db);//获取查询结果，ptr指向存贮结果的一段内存
+	row=mysql_num_rows(ptr);//获取查询结果的记录条数
+	column=mysql_num_fields(ptr);//获取查询结果的字段个数
+//	printf("row=%d column=%d\n",row,column);
+	while(field=mysql_fetch_field(ptr))
+	{
+		printf("%s\t",field->name);
+	}//
+	printf("\n");
+	for(i=0;i<row;i++)
+	{
+		result=mysql_fetch_row(ptr);//获取查询结果第一行
+		for(j=0;j<column-1;j++)
+		{
+			printf("%s\t",result[j]);//打印行的每个字段值
+		
+		}	
+		printf("\n");
+	}//
+	mysql_free_result(ptr);//
+	mysql_close(&db);
+	return 0;
+}
